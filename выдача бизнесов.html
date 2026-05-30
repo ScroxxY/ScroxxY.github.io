@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Таблица выдачи бизнесов</title>
+    <title>РўР°Р±Р»РёС†Р° РІС‹РґР°С‡Рё Р±РёР·РЅРµСЃРѕРІ</title>
     <style>
         :root {
             --bg-color: #121214;
@@ -12,7 +12,7 @@
             --border-color: #2d2d35;
             --input-bg: #26262b;
             
-            /* Цвета фракций со скрина */
+            /* Р¦РІРµС‚Р° С„СЂР°РєС†РёР№ СЃРѕ СЃРєСЂРёРЅР° */
             --color-lcn: #9b59b6;
             --color-trb: #e67e22;
             --color-ykz: #960000;
@@ -38,7 +38,7 @@
             border: 1px solid var(--border-color);
         }
 
-        /* Шапка */
+        /* РЁР°РїРєР° */
         .header {
             display: flex;
             justify-content: space-between;
@@ -56,7 +56,7 @@
             color: #fff;
         }
 
-        /* Панель авторизации */
+        /* РџР°РЅРµР»СЊ Р°РІС‚РѕСЂРёР·Р°С†РёРё */
         .auth-panel {
             display: flex;
             align-items: center;
@@ -91,7 +91,7 @@
         .btn-delete { background-color: #ff4757; color: white; font-size: 11px; padding: 4px 8px;}
         .btn-delete:hover { background-color: #ff6b81; }
 
-        /* Форма добавления (только для админа) */
+        /* Р¤РѕСЂРјР° РґРѕР±Р°РІР»РµРЅРёСЏ (С‚РѕР»СЊРєРѕ РґР»СЏ Р°РґРјРёРЅР°) */
         .admin-form {
             display: none;
             background-color: #121214;
@@ -130,7 +130,7 @@
         }
         select:focus, input:focus { outline: 1px solid #fff; }
 
-        /* Стили таблицы */
+        /* РЎС‚РёР»Рё С‚Р°Р±Р»РёС†С‹ */
         .table-wrapper {
             overflow-x: auto;
         }
@@ -162,7 +162,7 @@
             background-color: #1f1f24;
         }
 
-        /* Цвета фракций для ячеек */
+        /* Р¦РІРµС‚Р° С„СЂР°РєС†РёР№ РґР»СЏ СЏС‡РµРµРє */
         .fac-badge {
             display: inline-block;
             padding: 6px 12px;
@@ -178,7 +178,7 @@
         .fac-wmc { background-color: var(--color-wmc); color: #fff; }
         .fac-rm  { background-color: var(--color-rm);  color: #fff; }
 
-        /* Статусы */
+        /* РЎС‚Р°С‚СѓСЃС‹ */
         .status-badge {
             display: inline-block;
             padding: 6px 12px;
@@ -187,11 +187,11 @@
             font-size: 12px;
             text-align: center;
         }
-        .status-pending { background-color: #960000; color: #fff; } /* Красный */
-        .status-done { background-color: #1e7e34; color: #fff; }    /* Зеленый */
-        .status-empty { background-color: #383842; color: #a4a4b2; } /* Пустой */
+        .status-pending { background-color: #960000; color: #fff; } /* РљСЂР°СЃРЅС‹Р№ */
+        .status-done { background-color: #1e7e34; color: #fff; }    /* Р—РµР»РµРЅС‹Р№ */
+        .status-empty { background-color: #383842; color: #a4a4b2; } /* РџСѓСЃС‚РѕР№ */
 
-        /* Ссылки */
+        /* РЎСЃС‹Р»РєРё */
         .table-link {
             color: #3498db;
             text-decoration: none;
@@ -202,24 +202,35 @@
             display: flex;
             gap: 5px;
         }
+        
+        .save-box {
+            margin-top: 20px; 
+            border-top: 1px dashed #4e4e5a; 
+            padding-top: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Выдача бизнесов</h1>
+        <h1>Р’С‹РґР°С‡Р° Р±РёР·РЅРµСЃРѕРІ</h1>
         <div class="auth-panel">
-            <span id="roleBadge" class="badge guest">Режим чтения</span>
-            <button id="authBtn" class="btn-auth" onclick="toggleAuth()">Войти как Админ</button>
+            <span id="roleBadge" class="badge guest">Р РµР¶РёРј С‡С‚РµРЅРёСЏ</span>
+            <button id="authBtn" class="btn-auth" onclick="toggleAuth()">Р’РѕР№С‚Рё РєР°Рє Admin</button>
         </div>
     </div>
 
     <div id="adminForm" class="admin-form">
-        <h3 style="margin-top:0; margin-bottom:15px; color:#fff;">Добавить новую запись</h3>
+        <h3 style="margin-top:0; margin-bottom:15px; color:#fff;">Р”РѕР±Р°РІРёС‚СЊ РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ</h3>
         <div class="form-grid">
             <div class="form-group">
-                <label>Кому</label>
+                <label>РљРѕРјСѓ</label>
                 <select id="addTo">
                     <option value="LCN">LCN</option>
                     <option value="TRB">TRB</option>
@@ -229,7 +240,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>От кого</label>
+                <label>РћС‚ РєРѕРіРѕ</label>
                 <select id="addFrom">
                     <option value="LCN">LCN</option>
                     <option value="TRB">TRB</option>
@@ -239,22 +250,28 @@
                 </select>
             </div>
             <div class="form-group" style="grid-column: span 2;">
-                <label>Ссылка на жалобу</label>
+                <label>РЎСЃС‹Р»РєР° РЅР° Р¶Р°Р»РѕР±Сѓ</label>
                 <input type="url" id="addLink" placeholder="https://forum.arizona-rp.com/...">
             </div>
             <div class="form-group">
-                <label>Количество</label>
-                <input type="text" id="addQty" placeholder="Например: 4">
+                <label>РљРѕР»РёС‡РµСЃС‚РІРѕ</label>
+                <input type="text" id="addQty" placeholder="РќР°РїСЂРёРјРµСЂ: 4">
             </div>
             <div class="form-group">
-                <label>Статус</label>
+                <label>РЎС‚Р°С‚СѓСЃ</label>
                 <select id="addStatus">
-                    <option value="Ожидается выдача">Ожидается выдача</option>
-                    <option value="Выдано">Выдано</option>
-                    <option value="">[Пустой шаблон]</option>
+                    <option value="РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°">РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°</option>
+                    <option value="Р’С‹РґР°РЅРѕ">Р’С‹РґР°РЅРѕ</option>
+                    <option value="">[РџСѓСЃС‚РѕР№ С€Р°Р±Р»РѕРЅ]</option>
                 </select>
             </div>
-            <button class="btn-add" onclick="createNewRow()">Добавить</button>
+            <button class="btn-add" onclick="createNewRow()">Р”РѕР±Р°РІРёС‚СЊ</button>
+        </div>
+        
+        <!-- РљРЅРѕРїРєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ РґР»СЏ РіР»РѕР±Р°Р»СЊРЅРѕРіРѕ РѕР±РЅРѕРІР»РµРЅРёСЏ -->
+        <div class="save-box">
+            <span style="color: #a4a4b2; font-size: 13px;">вљ пёЏ Р§С‚РѕР±С‹ СЃРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ РґР»СЏ РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№, РЅР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ СЃРїСЂР°РІР°:</span>
+            <button onclick="copyNewCode()" style="background-color: #3498db; color: white;">РЎРєРѕРїРёСЂРѕРІР°С‚СЊ РЅРѕРІС‹Р№ РєРѕРґ РґР°РЅРЅС‹С…</button>
         </div>
     </div>
 
@@ -262,76 +279,70 @@
         <table>
             <thead>
                 <tr>
-                    <th>Кому</th>
-                    <th>От кого</th>
-                    <th>Жалоба</th>
-                    <th>Количество</th>
-                    <th>Статус</th>
-                    <th id="thActions" style="display: none;">Действия</th>
+                    <th>РљРѕРјСѓ</th>
+                    <th>РћС‚ РєРѕРіРѕ</th>
+                    <th>Р–Р°Р»РѕР±Р°</th>
+                    <th>РљРѕР»РёС‡РµСЃС‚РІРѕ</th>
+                    <th>РЎС‚Р°С‚СѓСЃ</th>
+                    <th id="thActions" style="display: none;">Р”РµР№СЃС‚РІРёСЏ</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
-                </tbody>
+            </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const ADMIN_PASSWORD = "9076221";
+    const ADMIN_PASSWORD = "admin123";
     let isAdmin = false;
 
-    // ДЕМО-ДАННЫЕ (если сайт открывается впервые, чтобы он не был пустым)
+    // РЎР®Р”Рђ Р’РЎРўРђР’Р›РЇР™РўР• РђРљРўРЈРђР›Р¬РќР«Р• Р”РђРќРќР«Р• (РћРЅРё СЃСЂР°Р·Сѓ Р±СѓРґСѓС‚ РІРёРґРЅС‹ РІСЃРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј)
     const defaultData = [
-        { to: "TRB", from: "LCN", link: "https://forum.arizona-rp.com/threads/11063756/", qty: "10", status: "Ожидается выдача" },
-        { to: "LCN", from: "TRB", link: "https://forum.arizona-rp.com/threads/11067079/", qty: "10", status: "Ожидается выдача" },
-        { to: "LCN", from: "TRB", link: "https://forum.arizona-rp.com/threads/11067935/", qty: "4", status: "Ожидается выдача" },
-        { to: "WMC", from: "RM", link: "https://forum.arizona-rp.com/threads/11003312/", qty: "4", status: "Выдано" },
-        { to: "LCN", from: "YAKUZA", link: "https://forum.arizona-rp.com/threads/10944255/", qty: "4", status: "Выдано" }
+        { to: "TRB", from: "LCN", link: "https://forum.arizona-rp.com/threads/11063756/", qty: "10", status: "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°" },
+        { to: "LCN", from: "TRB", link: "https://forum.arizona-rp.com/threads/11067079/", qty: "10", status: "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°" },
+        { to: "LCN", from: "TRB", link: "https://forum.arizona-rp.com/threads/11067935/", qty: "4", status: "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°" },
+        { to: "WMC", from: "RM", link: "https://forum.arizona-rp.com/threads/11003312/", qty: "4", status: "Р’С‹РґР°РЅРѕ" },
+        { to: "LCN", from: "YAKUZA", link: "https://forum.arizona-rp.com/threads/10944255/", qty: "4", status: "Р’С‹РґР°РЅРѕ" }
     ];
 
-    // Загрузка или создание базы данных в памяти браузера
-    let db = JSON.parse(localStorage.getItem('mafia_table_db')) || defaultData;
+    // Р‘Р°Р·Р° РґР°РЅРЅС‹С… РІСЃРµРіРґР° Р±РµСЂРµС‚СЃСЏ РЅР°РїСЂСЏРјСѓСЋ РёР· СЌС‚РѕРіРѕ С„Р°Р№Р»Р°, РєСЌС€ Р±СЂР°СѓР·РµСЂР° Р±РѕР»СЊС€Рµ РЅРёС‡РµРіРѕ РЅРµ Р»РѕРјР°РµС‚
+    let db = [...defaultData];
 
     window.onload = function() {
         renderTable();
     };
 
-    // Отрисовка таблицы
+    // РћС‚СЂРёСЃРѕРІРєР° С‚Р°Р±Р»РёС†С‹
     function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        // Сортировка: Сначала "Ожидается выдача", потом пустые, потом "Выдано" (как на скрине)
+        // РЎРѕСЂС‚РёСЂРѕРІРєР°: РЎРЅР°С‡Р°Р»Р° "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°", РїРѕС‚РѕРј РїСѓСЃС‚С‹Рµ, РїРѕС‚РѕРј "Р’С‹РґР°РЅРѕ"
         const sortedDb = [...db].sort((a, b) => {
-            if (a.status === "Ожидается выдача" && b.status !== "Ожидается выдача") return -1;
-            if (a.status !== "Ожидается выдача" && b.status === "Ожидается выдача") return 1;
-            if (a.status === "" && b.status === "Выдано") return -1;
-            if (a.status === "Выдано" && b.status === "") return 1;
+            if (a.status === "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°" && b.status !== "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°") return -1;
+            if (a.status !== "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°" && b.status === "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°") return 1;
+            if (a.status === "" && b.status === "Р’С‹РґР°РЅРѕ") return -1;
+            if (a.status === "Р’С‹РґР°РЅРѕ" && b.status === "") return 1;
             return 0;
         });
 
-        sortedDb.forEach((row, index) => {
-            // Находим оригинальный индекс в основном массиве db для корректного изменения/удаления
+        sortedDb.forEach((row) => {
             const originalIndex = db.findIndex(item => item === row);
-
             const tr = document.createElement('tr');
 
-            // Классы для сокращений фракций (маппинг под разные названия)
             const getFacClass = (f) => {
                 if(f === "YAKUZA") return "fac-ykz";
                 return `fac-${f.toLowerCase()}`;
             };
 
-            // Класс для статуса
             let statusClass = 'status-empty';
-            let statusText = '[Пусто]';
-            if (row.status === 'Ожидается выдача') { statusClass = 'status-pending'; statusText = row.status; }
-            if (row.status === 'Выдано') { statusClass = 'status-done'; statusText = row.status; }
+            let statusText = '[РџСѓСЃС‚Рѕ]';
+            if (row.status === 'РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°') { statusClass = 'status-pending'; statusText = row.status; }
+            if (row.status === 'Р’С‹РґР°РЅРѕ') { statusClass = 'status-done'; statusText = row.status; }
 
-            // Ссылка
             const linkHtml = row.link.startsWith('http') ? `<a href="${row.link}" target="_blank" class="table-link">${row.link}</a>` : row.link;
 
-            // Верстка строки
             tr.innerHTML = `
                 <td><span class="fac-badge ${getFacClass(row.to)}">${row.to}</span></td>
                 <td><span class="fac-badge ${getFacClass(row.from)}">${row.from}</span></td>
@@ -340,91 +351,93 @@
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
             `;
 
-            // Если зашел админ — добавляем кнопки управления для каждой строки
             if (isAdmin) {
                 const actionsTd = document.createElement('td');
                 actionsTd.className = "actions-cell";
                 
-                // Кнопка быстрой смены статуса
-                if (row.status === "Ожидается выдача") {
-                    actionsTd.innerHTML += `<button class="btn-status" onclick="changeStatus(${originalIndex}, 'Выдано')">Выдать</button>`;
-                } else if (row.status === "Выдано") {
-                    actionsTd.innerHTML += `<button class="btn-status" style="background:#e67e22;" onclick="changeStatus(${originalIndex}, 'Ожидается выдача')">В ожидание</button>`;
+                if (row.status === "РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°") {
+                    actionsTd.innerHTML += `<button class="btn-status" onclick="changeStatus(${originalIndex}, 'Р’С‹РґР°РЅРѕ')">Р’С‹РґР°С‚СЊ</button>`;
+                } else if (row.status === "Р’С‹РґР°РЅРѕ") {
+                    actionsTd.innerHTML += `<button class="btn-status" style="background:#e67e22;" onclick="changeStatus(${originalIndex}, 'РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°')">Р’ РѕР¶РёРґР°РЅРёРµ</button>`;
                 } else {
-                    actionsTd.innerHTML += `<button class="btn-status" onclick="changeStatus(${originalIndex}, 'Ожидается выдача')">Ожидание</button>`;
+                    actionsTd.innerHTML += `<button class="btn-status" onclick="changeStatus(${originalIndex}, 'РћР¶РёРґР°РµС‚СЃСЏ РІС‹РґР°С‡Р°')">РћР¶РёРґР°РЅРёРµ</button>`;
                 }
 
-                // Кнопка удаления
-                actionsTd.innerHTML += `<button class="btn-delete" onclick="deleteRow(${originalIndex})">?</button>`;
+                actionsTd.innerHTML += `<button class="btn-delete" onclick="deleteRow(${originalIndex})">вњ•</button>`;
                 tr.appendChild(actionsTd);
             }
 
             tbody.appendChild(tr);
         });
 
-        // Показ/скрытие заголовка "Действия"
         document.getElementById('thActions').style.display = isAdmin ? 'table-cell' : 'none';
     }
 
-    // Авторизация
+    // РђРІС‚РѕСЂРёР·Р°С†РёСЏ
     function toggleAuth() {
         if (!isAdmin) {
-            const pass = prompt("Введите пароль администратора:");
+            const pass = prompt("Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°:");
             if (pass === ADMIN_PASSWORD) {
                 isAdmin = true;
-                document.getElementById('roleBadge').innerText = "Администратор";
+                document.getElementById('roleBadge').innerText = "РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ";
                 document.getElementById('roleBadge').className = "badge admin";
-                document.getElementById('authBtn').innerText = "Выйти";
+                document.getElementById('authBtn').innerText = "Р’С‹Р№С‚Рё";
                 document.getElementById('adminForm').style.display = "block";
             } else if (pass !== null) {
-                alert("Неверный пароль!");
+                alert("РќРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ!");
             }
         } else {
             isAdmin = false;
-            document.getElementById('roleBadge').innerText = "Режим чтения";
+            document.getElementById('roleBadge').innerText = "Р РµР¶РёРј С‡С‚РµРЅРёСЏ";
             document.getElementById('roleBadge').className = "badge guest";
-            document.getElementById('authBtn').innerText = "Войти как Админ";
+            document.getElementById('authBtn').innerText = "Р’РѕР№С‚Рё РєР°Рє Admin";
             document.getElementById('adminForm').style.display = "none";
         }
         renderTable();
     }
 
-    // Создание новой записи админом
+    // РЎРѕР·РґР°РЅРёРµ РЅРѕРІРѕР№ Р·Р°РїРёСЃРё Р°РґРјРёРЅРѕРј
     function createNewRow() {
         const to = document.getElementById('addTo').value;
         const from = document.getElementById('addFrom').value;
-        const link = document.getElementById('addLink').value || 'Не указана';
+        const link = document.getElementById('addLink').value || 'РќРµ СѓРєР°Р·Р°РЅР°';
         const qty = document.getElementById('addQty').value || '0';
         const status = document.getElementById('addStatus').value;
 
         db.push({ to, from, link, qty, status });
-        saveToLocalStorage();
         renderTable();
 
-        // Очищаем инпуты ссылки и количества после добавления
         document.getElementById('addLink').value = '';
         document.getElementById('addQty').value = '';
     }
 
-    // Изменение статуса записи
+    // РР·РјРµРЅРµРЅРёРµ СЃС‚Р°С‚СѓСЃР° Р·Р°РїРёСЃРё
     function changeStatus(index, newStatus) {
         db[index].status = newStatus;
-        saveToLocalStorage();
         renderTable();
     }
 
-    // Удаление записи
+    // РЈРґР°Р»РµРЅРёРµ Р·Р°РїРёСЃРё
     function deleteRow(index) {
-        if(confirm("Вы уверены, что хотите удалить эту строку из истории?")) {
+        if(confirm("Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ СЌС‚Сѓ СЃС‚СЂРѕРєСѓ?")) {
             db.splice(index, 1);
-            saveToLocalStorage();
             renderTable();
         }
     }
 
-    // Сохранение в LocalStorage
-    function saveToLocalStorage() {
-        localStorage.setItem('mafia_table_db', JSON.stringify(db));
+    // Р¤СѓРЅРєС†РёСЏ РіРµРЅРµСЂР°С†РёРё Рё РєРѕРїРёСЂРѕРІР°РЅРёСЏ РѕР±РЅРѕРІР»РµРЅРЅРѕРіРѕ РєРѕРґР° РґР»СЏ РІСЃС‚Р°РІРєРё РІ С„Р°Р№Р»
+    function copyNewCode() {
+        const formattedData = db.map(item => 
+            `        { to: "${item.to}", from: "${item.from}", link: "${item.link}", qty: "${item.qty}", status: "${item.status}" }`
+        ).join(',\n');
+        
+        const fullCodeText = `const defaultData = [\n${formattedData}\n    ];`;
+        
+        navigator.clipboard.writeText(fullCodeText).then(() => {
+            alert("вњ… РљРѕРґ СѓСЃРїРµС€РЅРѕ СЃРєРѕРїРёСЂРѕРІР°РЅ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°!\n\nР§С‚Рѕ РґРµР»Р°С‚СЊ РґР°Р»СЊС€Рµ:\n1. РћС‚РєСЂРѕР№С‚Рµ РІР°С€ С„Р°Р№Р» index.html РЅР° РєРѕРјРїСЊСЋС‚РµСЂРµ.\n2. РќР°Р№РґРёС‚Рµ Р±Р»РѕРє 'const defaultData = [...]' (СЃС‚СЂРѕРєРё ~224-232).\n3. Р’С‹РґРµР»РёС‚Рµ СЃС‚Р°СЂС‹Р№ СЃРїРёСЃРѕРє Рё РїСЂРѕСЃС‚Рѕ РЅР°Р¶РјРёС‚Рµ Ctrl+V (РІСЃС‚Р°РІРёС‚СЊ).\n4. РЎРѕС…СЂР°РЅРёС‚Рµ С„Р°Р№Р» Рё Р·Р°Р»РµР№С‚Рµ РµРіРѕ РЅР° С…РѕСЃС‚РёРЅРі. Р’СЃРµ РїРѕР»СЊР·РѕРІР°С‚РµР»Рё СЃСЂР°Р·Сѓ СѓРІРёРґСЏС‚ РёР·РјРµРЅРµРЅРёСЏ!");
+        }).catch(() => {
+            prompt("РќРµ СѓРґР°Р»РѕСЃСЊ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё. Р’С‹РґРµР»РёС‚Рµ С‚РµРєСЃС‚ РЅРёР¶Рµ, СЃРєРѕРїРёСЂСѓР№С‚Рµ (Ctrl+C) Рё Р·Р°РјРµРЅРёС‚Рµ РёРј Р±Р»РѕРє defaultData РІ С„Р°Р№Р»Рµ:", fullCodeText);
+        });
     }
 </script>
 
