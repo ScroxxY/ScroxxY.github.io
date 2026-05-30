@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблица выдачи бизнесов</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1a1a1e;
+            --text-color: #e1e1e6;
+            --border-color: #2d2d35;
+            --input-bg: #26262b;
+            
+            /* Цвета фракций со скрина */
+            --color-lcn: #9b59b6;
+            --color-trb: #e67e22;
+            --color-ykz: #960000;
+            --color-wmc: #d35400;
+            --color-rm:  #2980b9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Шапка */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+
+        /* Панель авторизации */
+        .auth-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge.guest { background-color: #4b4b54; color: #fff; }
+        .badge.admin { background-color: #2ed573; color: #fff; }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        button:active { transform: scale(0.98); }
+
+        .btn-auth { background-color: #383842; color: #fff; }
+        .btn-auth:hover { background-color: #4e4e5a; }
+        .btn-add { background-color: #2ed573; color: #fff; height: 42px;}
+        .btn-add:hover { background-color: #26af5f; }
+        .btn-status { background-color: #3498db; color: white; font-size: 11px; padding: 4px 8px;}
+        .btn-delete { background-color: #ff4757; color: white; font-size: 11px; padding: 4px 8px;}
+        .btn-delete:hover { background-color: #ff6b81; }
+
+        /* Форма добавления (только для админа) */
+        .admin-form {
+            display: none;
+            background-color: #121214;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px dashed #4e4e5a;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: #a4a4b2;
+            font-weight: bold;
+        }
+
+        select, input {
+            padding: 10px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+        select:focus, input:focus { outline: 1px solid #fff; }
+
+        /* Стили таблицы */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #121214;
+            color: #a4a4b2;
+            padding: 12px 15px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: #1f1f24;
+        }
+
+        /* Цвета фракций для ячеек */
+        .fac-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: center;
+            min-width: 70px;
+        }
+        .fac-lcn { background-color: var(--color-lcn); color: #fff; }
+        .fac-trb { background-color: var(--color-trb); color: #fff; }
+        .fac-ykz { background-color: var(--color-ykz); color: #fff; }
+        .fac-wmc { background-color: var(--color-wmc); color: #fff; }
+        .fac-rm  { background-color: var(--color-rm);  color: #fff; }
+
+        /* Статусы */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+        }
+        .status-pending { background-color: #960000; color: #fff; } /* Красный */
+        .status-done { background-color: #1e7e34; color: #fff; }    /* Зеленый */
+        .status-empty { background-color: #383842; color: #a4a4b2; } /* Пустой */
+
+        /* Ссылки */
+        .table-link {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .table-link:hover { text-decoration: underline; }
+        
+        .actions-cell {
+            display: flex;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Выдача бизнесов</h1>
+        <div class="auth-panel">
+            <span id="roleBadge" class="badge guest">Режим чтения</span>
+            <button id="authBtn" class="btn-auth" onclick="toggleAuth()">Войти как Админ</button>
+        </div>
+    </div>
+
+    <div id="adminForm" class="admin-form">
+        <h3 style="margin-top:0; margin-bottom:15px; color:#fff;">Добавить новую запись</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Кому</label>
+                <select id="addTo">
+                    <option value="LCN">LCN</option>
+                    <option value="TRB">TRB</option>
+                    <option value="YAKUZA">YAKUZA</option>
+                    <option value="WMC">WMC</option>
+                    <option value="RM">RM</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>От кого</label>
+                <select id="addFrom">
+                    <option value="LCN">LCN</option>
+                    <option value="TRB">TRB</option>
+                    <option value="YAKUZA">YAKUZA</option>
+                    <option value="WMC">WMC</option>
+                    <option value="RM">RM</option>
+                </select>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+                <label>Ссылка на жалобу</label>
+                <input type="url" id="addLink" placeholder="https://forum.arizona-rp.com/...">
+            </div>
+            <div class="form-group">
+                <label>Количество</label>
+                <input type="text" id="addQty" placeholder="Например: 4">
+            </div>
+            <div class="form-group">
+                <label>Статус</label>
+                <select id="addStatus">
+                    <option value="Ожидается выдача">Ожидается выдача</option>
+                    <option value="Выдано">Выдано</option>
+                    <option value="">[Пустой шаблон]</option>
+                </select>
+            </div>
+            <button class="btn-add" onclick="createNewRow()">Добавить</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Кому</th>
+                    <th>От кого</th>
+                    <th>Жалоба</th>
+                    <th>Количество</th>
+                    <th>Статус</th>
+                    <th id="thActions" style="display: none;">Действия</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const ADMIN_PASSWORD = "9076221";
+    let isAdmin = false;
+
+    // ДЕМО-ДАННЫЕ (если сайт открывается впервые, чтобы он не был пустым)
+    const defaultData = [
+        { to: "TRB", from: "LCN", link: "https://forum.arizona-rp.com/threads/11063756/", qty: "10", status: "Ожидается выдача" },
+        { to: "LCN", from: "TRB", link: "https://forum.arizona-rp.com/threads/11067079/", qty: "10", status: "Ожидается выдача" },
+        { to: "LCN", from: "TRB", link: "https://forum.arizona-rp.com/threads/11067935/", qty: "4", status: "Ожидается выдача" },
+        { to: "WMC", from: "RM", link: "https://forum.arizona-rp.com/threads/11003312/", qty: "4", status: "Выдано" },
+        { to: "LCN", from: "YAKUZA", link: "https://forum.arizona-rp.com/threads/10944255/", qty: "4", status: "Выдано" }
+    ];
+
+    // Загрузка или создание базы данных в памяти браузера
+    let db = JSON.parse(localStorage.getItem('mafia_table_db')) || defaultData;
+
+    window.onload = function() {
+        renderTable();
+    };
+
+    // Отрисовка таблицы
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        // Сортировка: Сначала "Ожидается выдача", потом пустые, потом "Выдано" (как на скрине)
+        const sortedDb = [...db].sort((a, b) => {
+            if (a.status === "Ожидается выдача" && b.status !== "Ожидается выдача") return -1;
+            if (a.status !== "Ожидается выдача" && b.status === "Ожидается выдача") return 1;
+            if (a.status === "" && b.status === "Выдано") return -1;
+            if (a.status === "Выдано" && b.status === "") return 1;
+            return 0;
+        });
+
+        sortedDb.forEach((row, index) => {
+            // Находим оригинальный индекс в основном массиве db для корректного изменения/удаления
+            const originalIndex = db.findIndex(item => item === row);
+
+            const tr = document.createElement('tr');
+
+            // Классы для сокращений фракций (маппинг под разные названия)
+            const getFacClass = (f) => {
+                if(f === "YAKUZA") return "fac-ykz";
+                return `fac-${f.toLowerCase()}`;
+            };
+
+            // Класс для статуса
+            let statusClass = 'status-empty';
+            let statusText = '[Пусто]';
+            if (row.status === 'Ожидается выдача') { statusClass = 'status-pending'; statusText = row.status; }
+            if (row.status === 'Выдано') { statusClass = 'status-done'; statusText = row.status; }
+
+            // Ссылка
+            const linkHtml = row.link.startsWith('http') ? `<a href="${row.link}" target="_blank" class="table-link">${row.link}</a>` : row.link;
+
+            // Верстка строки
+            tr.innerHTML = `
+                <td><span class="fac-badge ${getFacClass(row.to)}">${row.to}</span></td>
+                <td><span class="fac-badge ${getFacClass(row.from)}">${row.from}</span></td>
+                <td>${linkHtml}</td>
+                <td style="font-weight: bold; color: #fff;">${row.qty}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            `;
+
+            // Если зашел админ — добавляем кнопки управления для каждой строки
+            if (isAdmin) {
+                const actionsTd = document.createElement('td');
+                actionsTd.className = "actions-cell";
+                
+                // Кнопка быстрой смены статуса
+                if (row.status === "Ожидается выдача") {
+                    actionsTd.innerHTML += `<button class="btn-status" onclick="changeStatus(${originalIndex}, 'Выдано')">Выдать</button>`;
+                } else if (row.status === "Выдано") {
+                    actionsTd.innerHTML += `<button class="btn-status" style="background:#e67e22;" onclick="changeStatus(${originalIndex}, 'Ожидается выдача')">В ожидание</button>`;
+                } else {
+                    actionsTd.innerHTML += `<button class="btn-status" onclick="changeStatus(${originalIndex}, 'Ожидается выдача')">Ожидание</button>`;
+                }
+
+                // Кнопка удаления
+                actionsTd.innerHTML += `<button class="btn-delete" onclick="deleteRow(${originalIndex})">?</button>`;
+                tr.appendChild(actionsTd);
+            }
+
+            tbody.appendChild(tr);
+        });
+
+        // Показ/скрытие заголовка "Действия"
+        document.getElementById('thActions').style.display = isAdmin ? 'table-cell' : 'none';
+    }
+
+    // Авторизация
+    function toggleAuth() {
+        if (!isAdmin) {
+            const pass = prompt("Введите пароль администратора:");
+            if (pass === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById('roleBadge').innerText = "Администратор";
+                document.getElementById('roleBadge').className = "badge admin";
+                document.getElementById('authBtn').innerText = "Выйти";
+                document.getElementById('adminForm').style.display = "block";
+            } else if (pass !== null) {
+                alert("Неверный пароль!");
+            }
+        } else {
+            isAdmin = false;
+            document.getElementById('roleBadge').innerText = "Режим чтения";
+            document.getElementById('roleBadge').className = "badge guest";
+            document.getElementById('authBtn').innerText = "Войти как Админ";
+            document.getElementById('adminForm').style.display = "none";
+        }
+        renderTable();
+    }
+
+    // Создание новой записи админом
+    function createNewRow() {
+        const to = document.getElementById('addTo').value;
+        const from = document.getElementById('addFrom').value;
+        const link = document.getElementById('addLink').value || 'Не указана';
+        const qty = document.getElementById('addQty').value || '0';
+        const status = document.getElementById('addStatus').value;
+
+        db.push({ to, from, link, qty, status });
+        saveToLocalStorage();
+        renderTable();
+
+        // Очищаем инпуты ссылки и количества после добавления
+        document.getElementById('addLink').value = '';
+        document.getElementById('addQty').value = '';
+    }
+
+    // Изменение статуса записи
+    function changeStatus(index, newStatus) {
+        db[index].status = newStatus;
+        saveToLocalStorage();
+        renderTable();
+    }
+
+    // Удаление записи
+    function deleteRow(index) {
+        if(confirm("Вы уверены, что хотите удалить эту строку из истории?")) {
+            db.splice(index, 1);
+            saveToLocalStorage();
+            renderTable();
+        }
+    }
+
+    // Сохранение в LocalStorage
+    function saveToLocalStorage() {
+        localStorage.setItem('mafia_table_db', JSON.stringify(db));
+    }
+</script>
+
+</body>
+</html>
