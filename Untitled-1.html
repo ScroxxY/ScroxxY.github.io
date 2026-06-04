@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выдача бизнесов — Premium Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Базовые стили */
+        body {
+            background: radial-gradient(circle at center, #2a2a35 0%, #101014 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 40px 20px;
+            display: flex; justify-content: center;
+            min-height: 100vh; position: relative; overflow-x: hidden; box-sizing: border-box;
+            transition: background 0.5s, padding 0.5s;
+        }
+
+        #particles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .particle { position: absolute; background: rgba(255, 255, 255, 0.5); border-radius: 50%; filter: blur(1px); animation: fall linear infinite; }
+        @keyframes fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(105vh); opacity: 0; }
+        }
+
+        .container {
+            background-color: rgba(34, 34, 42, 0.9); border-radius: 12px; padding: 30px 40px;
+            width: 100%; max-width: 1100px; box-shadow: 0 8px 32px rgba(0,0,0,0.7); 
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 1; 
+            transition: all 0.5s;
+        }
+
+        .header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 25px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
+        .header::before { content: ""; flex: 1; }
+        .header h1 {
+            flex: 0 1 auto; text-align: center; margin: 0 20px; font-size: 28px; text-transform: uppercase; font-weight: 800; letter-spacing: 2px;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000); background-size: 200% auto; color: transparent;
+            -webkit-background-clip: text; background-clip: text; animation: rgbShine 4s linear infinite; text-shadow: 0 2px 10px rgba(255,255,255,0.2);
+        }
+        .header-btn-wrap { flex: 1; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;}
+        @keyframes rgbShine { to { background-position: 200% center; } }
+
+        .dashboard { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-card { flex: 1; background: rgba(26, 26, 31, 0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 15px; text-align: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); min-width: 150px; }
+        .stat-title { font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .stat-num { font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+
+        .search-bar { width: 100%; background: rgba(20, 20, 25, 0.8); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 15px 20px; border-radius: 8px; font-size: 15px; margin-bottom: 20px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        .search-bar:focus { border-color: #5dade2; box-shadow: 0 0 15px rgba(93,173,226,0.2); }
+
+        .table-wrapper { max-height: 500px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); transition: max-height 0.5s; }
+        .table-wrapper::-webkit-scrollbar { width: 8px; }
+        .table-wrapper::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 8px; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 8px; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        thead tr { background: #1f1f26; } 
+        th { position: sticky; top: 0; z-index: 10; background: #25252e; box-shadow: 0 2px 5px rgba(0,0,0,0.5); color: #e0e0e0; font-size: 13px; text-transform: uppercase; padding: 18px 10px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none; }
+        td { padding: 15px 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        tbody tr:hover td { background-color: rgba(255,255,255,0.03); }
+        
+        @keyframes pulse-red { 0% { background-color: rgba(231, 76, 60, 0); } 50% { background-color: rgba(231, 76, 60, 0.15); box-shadow: inset 0 0 10px rgba(231, 76, 60, 0.3); } 100% { background-color: rgba(231, 76, 60, 0); } }
+        .overdue-pulse td { animation: pulse-red 2.5s infinite; border-bottom: 1px solid rgba(231, 76, 60, 0.3); }
+
+        .badge { display: inline-block; padding: 6px 16px; border-radius: 4px; font-weight: bold; font-size: 13px; color: white; min-width: 60px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .bg-TRB { background-color: #e67e22; } .bg-LCN { background-color: #8e44ad; } .bg-WMC { background-color: #d35400; } .bg-RM { background-color: #2980b9; } .bg-YKZ { background-color: #c0392b; } .bg-UNKNOWN { background-color: #7f8c8d; }
+        .status-wait { background-color: #900000; } .status-done { background-color: #27ae60; }
+        
+        a { color: #5dade2; text-decoration: none; font-size: 14px; }
+        a:hover { text-decoration: underline; color: #fff; }
+        
+        .btn { background-color: #2980b9; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+        .btn:hover { background-color: #3498db; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(52,152,219,0.4); }
+        .btn-matrix { background-color: #f39c12; } .btn-matrix:hover { background-color: #f1c40f; }
+        .btn-photo { background-color: #8e44ad; } .btn-photo:hover { background-color: #9b59b6; }
+        .btn-chart { background-color: #16a085; } .btn-chart:hover { background-color: #1abc9c; }
+        
+        .admin-controls { display: none; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap;}
+        .btn-save { background-color: #27ae60; flex: 1; padding: 15px; font-size: 14px; }
+        .btn-add { background-color: #f39c12; flex: 1; padding: 15px; font-size: 14px;}
+        .btn-mass { background-color: #1abc9c; padding: 15px; font-size: 14px;}
+        
+        .admin-input, .admin-select { background-color: rgba(20, 20, 25, 0.9); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 4px; width: 90%; text-align: center; font-size: 14px; box-sizing: border-box;}
+        .admin-chk { display: none; width: 18px; height: 18px; cursor: pointer; accent-color: #27ae60; }
+        .show-chk .admin-chk { display: inline-block; }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: rgba(46, 204, 113, 0.95); color: white; padding: 15px 25px; border-radius: 6px; transform: translateX(120%); transition: transform 0.3s; font-weight: bold; border-left: 5px solid #fff; }
+        .toast.error { background: rgba(231, 76, 60, 0.95); }
+        .toast.info { background: rgba(142, 68, 173, 0.95); }
+        .toast.show { transform: translateX(0); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #22222a; padding: 35px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); max-width: 600px; width: 90%; }
+        .modal-content h3 { margin-top: 0; color: #fff; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;}
+
+        /* РЕЖИМ СКРИНШОТА (Кинематографичный) */
+        body.screenshot-mode { background: #111; padding: 20px; }
+        body.screenshot-mode #particles-container,
+        body.screenshot-mode .header-btn-wrap,
+        body.screenshot-mode .search-bar,
+        body.screenshot-mode .admin-controls,
+        body.screenshot-mode #toast-container { display: none !important; }
+        body.screenshot-mode .container { box-shadow: 0 0 50px rgba(0,0,0,0.9); border: 1px solid #333; max-width: 1200px; }
+        body.screenshot-mode .table-wrapper { max-height: none; overflow: visible; border: none; }
+        body.screenshot-mode th { position: static; background: #1a1a20; }
+        #screenshotHint { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 20px; color: #aaa; z-index: 9999; font-size: 14px; letter-spacing: 1px; }
+        body.screenshot-mode #screenshotHint { display: block; animation: fadeOut 3s forwards 2s; }
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+    </style>
+</head>
+<body>
+
+<div id="particles-container"></div>
+<div id="toast-container"></div>
+<div id="screenshotHint">Нажмите ESC, чтобы выйти из режима скриншота</div>
+
+<div id="authModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h3>Доступ администратора</h3>
+        <input type="password" id="passInput" class="admin-input" placeholder="Введите пароль" style="width: 100%; margin-bottom: 20px;" onkeydown="if(event.key === 'Enter') checkPassword()">
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-save" style="flex:1; padding: 12px;" onclick="checkPassword()">Вход</button>
+            <button class="btn" style="flex:1; background-color: #555; padding: 12px;" onclick="closeModal('authModal')">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<div id="matrixModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h3>Сводка долгов</h3>
+        <div id="matrixContent" style="text-align: left; margin-bottom: 20px; font-size: 15px;">Загрузка...</div>
+        <button class="btn" style="width: 100%;" onclick="closeModal('matrixModal')">Закрыть</button>
+    </div>
+</div>
+
+<div id="analyticsModal" class="modal">
+    <div class="modal-content">
+        <h3>Аналитика потери/получения бизнесов</h3>
+        <canvas id="mafiaChart" height="200"></canvas>
+        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="closeModal('analyticsModal')">Закрыть</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>Выдача бизнесов</h1>
+        <div class="header-btn-wrap">
+            <button class="btn btn-photo" onclick="toggleScreenshotMode()">📸 Скриншот</button>
+            <button class="btn btn-chart" onclick="showAnalytics()">📈 Аналитика</button>
+            <button class="btn btn-matrix" onclick="showMatrix()">📊 Матрица</button>
+            <button id="authBtn" class="btn" onclick="toggleAdmin()">Вход для админа</button>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="stat-card"><div class="stat-title">Всего заявок</div><div class="stat-num" id="statTotal" style="color: #5dade2;">0</div></div>
+        <div class="stat-card" style="border-bottom: 3px solid #e74c3c;"><div class="stat-title">Ожидается выдача</div><div class="stat-num" id="statWait" style="color: #e74c3c;">0</div></div>
+        <div class="stat-card" style="border-bottom: 3px solid #2ecc71;"><div class="stat-title">Успешно выдано</div><div class="stat-num" id="statDone" style="color: #2ecc71;">0</div></div>
+    </div>
+
+    <input type="text" id="searchInput" class="search-bar" onkeyup="filterTable()" placeholder="🔍 Быстрый поиск...">
+
+    <div class="table-wrapper">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th class="admin-chk-col" style="display: none; width: 40px;"><input type="checkbox" id="selectAllChk" class="admin-chk" onclick="toggleAllCheckboxes(this)"></th>
+                    <th>Кому</th><th>От кого</th><th>Жалоба</th><th>Кол-во</th><th>Статус</th><th>Дата</th> 
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr id="loadingRow"><td colspan="7" style="text-align:center; padding: 30px; color:#888;">Загрузка данных...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="adminControls" class="admin-controls">
+        <button class="btn btn-mass" onclick="massIssueSelected()">✅ Выдать выбранные</button>
+        <button class="btn btn-add" onclick="addNewRow()">➕ Добавить запись</button>
+        <button id="saveBtn" class="btn btn-save" onclick="saveData()">💾 Сохранить изменения</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXgD8InW5w8cAtMxvLB9jPXXcVydTO_mJdw5Ip0HfvyuQDXrMkx9YLU3dNIICdvvKY/exec';
+    const ADMIN_PASSWORD = '2075521'; // Твой пароль
+    
+    // ВСТАВЬ СЮДА ССЫЛКУ НА DISCORD WEBHOOK
+    const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1510641070080397353/FIXpvEu0JVNh6tbTt5X6dz2huaLEc9luLEjjZr0261OFd0e65IT9I2O3wNDXYrJY23co'; 
+    // Пример: 'https://discord.com/api/webhooks/123456789/AbCdEfGhIjK...'
+
+    let isAdmin = false;
+    let sheetData = []; 
+    let chartInstance = null;
+    const FACTIONS = ['TRB', 'LCN', 'WMC', 'RM', 'YKZ'];
+
+    // Частицы
+    for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div'); p.className = 'particle';
+        const size = Math.random() * 4 + 1; p.style.width = `${size}px`; p.style.height = `${size}px`;
+        p.style.left = `${Math.random() * 100}vw`; p.style.animationDelay = `${Math.random() * 10}s`; p.style.animationDuration = `${Math.random() * 10 + 5}s`;
+        p.style.background = `hsl(${190 + Math.random() * 50}, 80%, 75%)`;
+        document.getElementById('particles-container').appendChild(p);
+    }
+
+    function showToast(message, type = 'success') {
+        const c = document.getElementById('toast-container'); const t = document.createElement('div');
+        t.className = `toast ${type}`; t.innerText = message; c.appendChild(t);
+        setTimeout(() => t.classList.add('show'), 10);
+        setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    async function loadTableData() {
+        try {
+            const res = await fetch(SCRIPT_URL); sheetData = await res.json();
+            renderTable();
+        } catch (e) {
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="7" style="color:#e74c3c; text-align:center;">Ошибка загрузки.</td></tr>`;
+        }
+    }
+
+    function updateDashboard() {
+        let t = 0, w = 0, d = 0;
+        for (let i = 1; i < sheetData.length; i++) {
+            if (!sheetData[i] || !sheetData[i][0]) continue;
+            t++; if (String(sheetData[i][4]).toLowerCase().includes('выдано')) d++; else w++;
+        }
+        document.getElementById('statTotal').innerText = t;
+        document.getElementById('statWait').innerText = w;
+        document.getElementById('statDone').innerText = d;
+    }
+
+    window.filterTable = function() {
+        const filter = document.getElementById("searchInput").value.toLowerCase();
+        const trs = document.getElementById("tableBody").getElementsByTagName("tr");
+        for (let i = 0; i < trs.length; i++) {
+            if(trs[i].id === 'loadingRow') continue;
+            trs[i].style.display = trs[i].innerText.toLowerCase().includes(filter) ? "" : "none";
+        }
+    }
+
+    function renderTable() {
+        updateDashboard();
+        const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
+        document.querySelector('.admin-chk-col').style.display = isAdmin ? 'table-cell' : 'none';
+        document.getElementById('mainTable').classList.toggle('show-chk', isAdmin);
+
+        if (sheetData.length <= 1) return tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Нет заявок</td></tr>`;
+
+        for (let i = 1; i < sheetData.length; i++) { 
+            const row = sheetData[i]; if (!row || !row[0]) continue;
+            let toF = String(row[0]).trim().toUpperCase(), fromF = String(row[1]).trim().toUpperCase();
+            if (toF === 'YAKUZA') toF = 'YKZ'; if (fromF === 'YAKUZA') fromF = 'YKZ';
+            const toC = FACTIONS.includes(toF) ? toF : 'UNKNOWN', fromC = FACTIONS.includes(fromF) ? fromF : 'UNKNOWN';
+            const isD = String(row[4]).toLowerCase().includes('выдано');
+            
+            const tr = document.createElement('tr');
+            if (!isD && row[5]) {
+                const parts = String(row[5]).split('.');
+                if(parts.length===3 && Math.ceil((new Date() - new Date(parts[2], parts[1]-1, parts[0]))/86400000) > 3) tr.classList.add('overdue-pulse');
+            }
+            
+            let chkTd = `<td style="display: ${isAdmin ? 'table-cell' : 'none'}"><input type="checkbox" class="admin-chk row-chk" data-idx="${i}"></td>`;
+
+            if (isAdmin) {
+                tr.innerHTML = `${chkTd}
+                    <td><select id="c_${i}_0" class="admin-select">${FACTIONS.map(f=>`<option value="${f}" ${(f===toF)?'selected':''}>${f}</option>`).join('')}</select></td>
+                    <td><select id="c_${i}_1" class="admin-select">${FACTIONS.map(f=>`<option value="${f}" ${(f===fromF)?'selected':''}>${f}</option>`).join('')}</select></td>
+                    <td><input type="text" class="admin-input" id="c_${i}_2" value="${row[2]||''}"></td>
+                    <td><input type="text" class="admin-input" id="c_${i}_3" value="${row[3]||''}" style="width: 50px;"></td>
+                    <td><select id="c_${i}_4" class="admin-select"><option value="Ожидается выдача" ${!isD?'selected':''}>Ожидается</option><option value="Выдано" ${isD?'selected':''}>Выдано</option></select></td>
+                    <td><div style="display:flex;gap:5px;"><input type="text" class="admin-input" id="c_${i}_5" value="${row[5]||''}" style="width:70px;font-size:12px;"><button onclick="deleteRow(${i})" style="background:none;border:none;cursor:pointer;">🗑️</button></div></td>`;
+            } else {
+                tr.innerHTML = `${chkTd}
+                    <td><span class="badge bg-${toC}">${toF}</span></td>
+                    <td><span class="badge bg-${fromC}">${fromF}</span></td>
+                    <td><a href="${row[2]}" target="_blank">Ссылка</a></td>
+                    <td><strong>${row[3]}</strong></td>
+                    <td><span class="badge ${isD?'status-done':'status-wait'}">${isD?'Выдано':'Ожидается'}</span></td>
+                    <td style="color:#aaa; font-size:12px;">${row[5]||''}</td>`;
+            }
+            tbody.appendChild(tr);
+        }
+        filterTable(); 
+    }
+
+    function syncInputs() {
+        if (!isAdmin) return;
+        for (let i = 1; i < sheetData.length; i++) {
+            if (!sheetData[i] || !sheetData[i][0]) continue;
+            for(let c=0; c<=5; c++){ let e = document.getElementById(`c_${i}_${c}`); if(e) sheetData[i][c] = e.value; }
+        }
+    }
+
+    window.addNewRow = function() {
+        syncInputs();
+        if (sheetData.length === 0) sheetData.push(["Кому", "От кого", "Жалоба", "Количество", "Статус", "Дата"]);
+        sheetData.push(["TRB", "LCN", "", "1", "Ожидается выдача", new Date().toLocaleDateString('ru-RU')]);
+        renderTable(); showToast("Добавлена новая строка");
+    };
+
+    window.deleteRow = function(idx) {
+        if (confirm("Удалить?")) { syncInputs(); sheetData.splice(idx, 1); renderTable(); }
+    };
+
+    window.toggleAllCheckboxes = function(m) { document.querySelectorAll('.row-chk').forEach(c => c.checked = m.checked); }
+    window.massIssueSelected = function() {
+        syncInputs(); let chk = false;
+        document.querySelectorAll('.row-chk:checked').forEach(c => { sheetData[c.getAttribute('data-idx')][4] = "Выдано"; chk = true; });
+        if(chk) { renderTable(); document.getElementById('selectAllChk').checked = false; showToast("Изменено! Нажмите Сохранить."); }
+    }
+
+    window.showMatrix = function() {
+        let d = {}; FACTIONS.forEach(f => d[f] = {});
+        for (let i = 1; i < sheetData.length; i++) {
+            const r = sheetData[i];
+            if (r && r[0] && String(r[4]).toLowerCase().includes('ожидается')) {
+                let to=String(r[0]).toUpperCase(), fr=String(r[1]).toUpperCase(), c=parseInt(r[3])||0;
+                if(to==='YAKUZA') to='YKZ'; if(fr==='YAKUZA') fr='YKZ';
+                if (FACTIONS.includes(to) && FACTIONS.includes(fr)) d[to][fr] = (d[to][fr] || 0) + c;
+            }
+        }
+        let h = '<ul style="list-style:none; padding:0; margin:0;">', ok = false;
+        for (let t in d) for (let f in d[t]) if (d[t][f] > 0) {
+            ok = true; h += `<li style="margin-bottom:10px; display:flex; justify-content:space-between; border-bottom:1px dashed #444; padding-bottom:5px;"><span class="badge bg-${f}">${f}</span> ➔ <span class="badge bg-${t}">${t}</span> <strong style="color:#e74c3c;">${d[t][f]} биз.</strong></li>`;
+        }
+        document.getElementById('matrixContent').innerHTML = ok ? h+'</ul>' : "<div style='text-align:center;color:#2ecc71;'>Долгов нет! 🎉</div>";
+        document.getElementById('matrixModal').style.display = 'flex';
+    }
+
+    // 4. Графики (Аналитика)
+    window.showAnalytics = function() {
+        document.getElementById('analyticsModal').style.display = 'flex';
+        
+        let stats = {}; FACTIONS.forEach(f => stats[f] = { plus: 0, minus: 0 });
+        for (let i = 1; i < sheetData.length; i++) {
+            let row = sheetData[i]; if (!row || !row[0]) continue;
+            let to = String(row[0]).trim().toUpperCase(); if(to==='YAKUZA') to='YKZ';
+            let fr = String(row[1]).trim().toUpperCase(); if(fr==='YAKUZA') fr='YKZ';
+            let count = parseInt(row[3]) || 0;
+            
+            if(stats[to]) stats[to].plus += count;
+            if(stats[fr]) stats[fr].minus += count;
+        }
+
+        const ctx = document.getElementById('mafiaChart').getContext('2d');
+        if(chartInstance) chartInstance.destroy();
+
+        Chart.defaults.color = '#fff';
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: FACTIONS,
+                datasets: [
+                    { label: 'Получили (+)', data: FACTIONS.map(f => stats[f].plus), backgroundColor: 'rgba(46, 204, 113, 0.8)', borderColor: '#2ecc71', borderWidth: 1 },
+                    { label: 'Отдали (-)', data: FACTIONS.map(f => stats[f].minus), backgroundColor: 'rgba(231, 76, 60, 0.8)', borderColor: '#e74c3c', borderWidth: 1 }
+                ]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { grid: { display: false } } } }
+        });
+    }
+
+    // 3. Режим Кинематографичного Скриншота
+    window.toggleScreenshotMode = function() {
+        document.body.classList.add('screenshot-mode');
+        showToast("Режим скриншота активирован. Нажмите ESC для выхода.", "info");
+    }
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape" && document.body.classList.contains('screenshot-mode')) {
+            document.body.classList.remove('screenshot-mode');
+        }
+    });
+
+    window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; if(id==='authModal') document.getElementById('passInput').value=''; }
+    window.checkPassword = function() {
+        if (document.getElementById('passInput').value === ADMIN_PASSWORD) {
+            isAdmin = true; closeModal('authModal');
+            document.getElementById('authBtn').innerText = "Выйти"; document.getElementById('authBtn').style.backgroundColor = "#c0392b";
+            document.getElementById('adminControls').style.display = "flex"; renderTable(); showToast("Вы вошли как админ");
+        } else { showToast("Неверный пароль!", "error"); document.getElementById('passInput').value = ''; }
+    };
+    window.toggleAdmin = function() {
+        if (!isAdmin) { document.getElementById('authModal').style.display='flex'; document.getElementById('passInput').focus(); } 
+        else { isAdmin = false; document.getElementById('authBtn').innerText="Вход для админа"; document.getElementById('authBtn').style.backgroundColor="#2980b9"; document.getElementById('adminControls').style.display="none"; loadTableData(); }
+    };
+
+    // 2. Интеграция с Discord Webhook
+    async function sendDiscordLog() {
+        if (!DISCORD_WEBHOOK) return;
+        const embed = {
+            title: "📊 Обновление таблицы бизнесов",
+            description: "Администратор внес изменения в таблицу выдачи бизнесов.",
+            color: 3066993, // Зеленый цвет
+            timestamp: new Date().toISOString()
+        };
+        try {
+            await fetch(DISCORD_WEBHOOK, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ embeds: [embed], username: "Mafia Monitor System" })
+            });
+        } catch (e) { console.error("Ошибка отправки в Discord:", e); }
+    }
+
+    window.saveData = async function() {
+        const btn = document.getElementById('saveBtn'); btn.innerText = "⌛ Сохранение..."; syncInputs();
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(sheetData) });
+            showToast("Успешно сохранено!"); 
+            btn.innerText = "💾 Сохранить изменения"; 
+            renderTable();
+            sendDiscordLog(); // Отправка лога в дискорд
+        } catch (e) { showToast("Ошибка сохранения", "error"); btn.innerText = "💾 Сохранить изменения"; }
+    };
+
+    loadTableData(); setInterval(() => { if (!isAdmin) loadTableData(); }, 30000);
+</script>
+
+</body>
+</html>
